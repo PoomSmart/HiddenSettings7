@@ -1,7 +1,6 @@
 ARCHS = armv7 arm64
 SDKVERSION = 7.0
-
-FW_DEVICE_IP = 192.168.1.4
+GO_EASY_ON_ME = 1
 
 include theos/makefiles/common.mk
 
@@ -10,12 +9,3 @@ HiddenSettings7_FILES = Tweak.xm
 HiddenSettings7_FRAMEWORKS = UIKit Foundation
 
 include $(THEOS_MAKE_PATH)/tweak.mk
-
-ri:: remoteinstall
-remoteinstall:: all internal-remoteinstall after-remoteinstall
-internal-remoteinstall::
-	scp -P 22 "$(FW_PROJECT_DIR)/$(THEOS_OBJ_DIR_NAME)/$(TWEAK_NAME).dylib" root@$(FW_DEVICE_IP):
-	scp -P 22 "$(FW_PROJECT_DIR)/$(TWEAK_NAME).plist" root@$(FW_DEVICE_IP):
-	ssh root@$(FW_DEVICE_IP) "mv $(TWEAK_NAME).* /Library/MobileSubstrate/DynamicLibraries/"
-after-remoteinstall::
-	ssh root@$(FW_DEVICE_IP) "killall -9 SpringBoard"

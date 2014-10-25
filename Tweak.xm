@@ -217,7 +217,6 @@ static SBCCHiddenSettingsSectionController *hiddenSettingsController = nil;
 
 - (id)_allSections {
 	NSArray *sections = %orig;
-	NSMutableArray *dividerViews = MSHookIvar<NSMutableArray *>(self, "_dividerViews");
 	
 	NSMutableArray *newSections = [NSMutableArray array];
 	
@@ -227,16 +226,7 @@ static SBCCHiddenSettingsSectionController *hiddenSettingsController = nil;
 		}
 		[newSections addObject:section];
 	}
-	
-	// divider should be "count of sections - 1"
-	if (newSections.count - 1 > dividerViews.count) {
-		SBControlCenterSeparatorView *seperator = [[%c(SBControlCenterSeparatorView) alloc] initWithFrame:CGRectMake(0,0,0,0)];
-		[seperator setHidden:YES];
-		[dividerViews addObject:seperator];
-		[self addSubview:seperator];
-		[seperator release];
-	}
-	
+		
 	return newSections;
 }
 
@@ -263,22 +253,15 @@ static SBCCHiddenSettingsSectionController *hiddenSettingsController = nil;
 		frame.size.height -= height;
 		prevSection.view.frame = frame;
 		
-		NSMutableArray *dividerViews = MSHookIvar<NSMutableArray *>(self, "_dividerViews");
+		NSUInteger count = [[[self viewController] viewControllers] count];
 		
 		CGRect rect;
-		SBControlCenterSeparatorView *seperator = nil;
 		
-		for (unsigned int i=dividerIndex-1;i<dividerViews.count;i++) {
-			seperator = dividerViews[i];
-			rect = seperator.frame;
+		for (unsigned int i=dividerIndex-1;i<count;i++) {
 			rect.origin.y -= height;
-			seperator.frame = rect;
 		}
 		
 		if (UIInterfaceOrientationIsPortrait(orientation)) {
-			seperator = dividerViews[2];
-			seperator.hidden = YES;
-			
 			rect = self.quickLaunchSection.view.frame;
 			rect.origin.y -= height;
 			rect.size.height += height;
@@ -325,6 +308,12 @@ static SBCCHiddenSettingsSectionController *hiddenSettingsController = nil;
 
 
 %hook SpringBoard
+
+%new
+- (void)quitTopApplication:(id)arg
+{
+
+}
 
 - (void)applicationDidFinishLaunching:(id)application {
 	%orig;
